@@ -1,8 +1,15 @@
 package com.test.mailing;
 
 import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+
 import java.util.Properties;
 
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -88,7 +95,7 @@ public class HomeActivity extends ActionBarActivity {
 		public void onActivityCreated(Bundle savedInstanceState){
 			super.onActivityCreated(savedInstanceState);
 			btn = (Button)PlaceholderFragment.this.getView().findViewById(R.id.btn_send);
-			
+			 
 			et_conntact = (EditText)PlaceholderFragment.this.getView().findViewById(R.id.et_contact);
 			et_subject = (EditText)PlaceholderFragment.this.getView().findViewById(R.id.et_subject);
 			et_message = (EditText)PlaceholderFragment.this.getView().findViewById(R.id.et_content);
@@ -101,27 +108,50 @@ public class HomeActivity extends ActionBarActivity {
 			if(btn.getId() == v.getId()){
 				if(event.getAction() == MotionEvent.ACTION_UP){
 					
-					String strContact = et_conntact.getText().toString();
-					String strsubject = et_subject.getText().toString();
-					String strMessage = et_message.getText().toString();
+//					String strContact = et_conntact.getText().toString();
+//					String strsubject = et_subject.getText().toString();
+//					String strMessage = et_message.getText().toString();
+//					
+//					if(strContact.equals("")){
+//						Toast.makeText(this.getActivity(), "Falto Destinatario", Toast.LENGTH_SHORT).show();
+//						return true;
+//					}
+//					if(strsubject.equals("")){
+//						Toast.makeText(this.getActivity(), "Falto Asunto.", Toast.LENGTH_SHORT).show();
+//						return true;
+//					}
+//					if(strMessage.equals("")){
+//						Toast.makeText(this.getActivity(), "Mensaje vacio.", Toast.LENGTH_SHORT).show();
+//					}
+//					performSendMail(strContact, strsubject, strMessage);
 					
-					if(strContact.equals("")){
-						Toast.makeText(this.getActivity(), "Falto Destinatario", Toast.LENGTH_SHORT).show();
-						return true;
-					}
-					if(strsubject.equals("")){
-						Toast.makeText(this.getActivity(), "Falto Asunto.", Toast.LENGTH_SHORT).show();
-						return true;
-					}
-					if(strMessage.equals("")){
-						Toast.makeText(this.getActivity(), "Mensaje vacio.", Toast.LENGTH_SHORT).show();
+					try {
+						SecretKey key = getKey("1234567890".toCharArray(), "frtk".getBytes());
+						Log.d("KEY SHA1", key.toString());
+						
+					} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 					
-					performSendMail(strContact, strsubject, strMessage);
 					return true;
 				}
 			}
 			return false;
+		}
+		
+		private static SecretKey getKey(char[] phrase, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException{
+			
+			
+			final int iterations = 1000;
+			final int outputKeyLenght = 256;
+			
+			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+			KeySpec spec = new PBEKeySpec(phrase, salt, iterations, outputKeyLenght);
+			
+			SecretKey key = factory.generateSecret(spec);
+			
+			return key;
 		}
 		
 		private void performSendMail(String email, String subject, String messageBody){
@@ -159,7 +189,7 @@ public class HomeActivity extends ActionBarActivity {
 			
 			return Session.getInstance(properties, new javax.mail.Authenticator() {
 	            protected PasswordAuthentication getPasswordAuthentication() {
-	                return new PasswordAuthentication("alexxsanchezm@gmail.com", "albk:1989");
+	                return new PasswordAuthentication("alexxsanchezm@gmail.com", "---");
 	            }
 	        });
 		}
